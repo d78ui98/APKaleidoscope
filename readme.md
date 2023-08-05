@@ -18,6 +18,8 @@ APKaleidoscope is a Python-based tool that performs various operations on APK fi
 To use APKaleidoscope, you'll need to have Python 3.8 or higher installed on your system. You can then install it using the following command:
 
 ```
+python3 -m venv venv
+source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
