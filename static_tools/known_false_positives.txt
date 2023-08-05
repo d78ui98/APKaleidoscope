@@ -1,0 +1,15 @@
+https://android.googlesource.com/toolchain/*
+https://play.google.com/store
+http://schemas.android.com/apk/res/android
+https://www.google.com
+http://www.android.com/
+https://developer.mozilla.org/docs/Web/CSS/*
+http://schemas.android.com/apk/res-auto
+http://localhost.*
+https://plus\.google\.com/share.*
+www\.google\.com.*
+https://plus\.google\.com/.*
+google.*
+https://firebase.google.com*
+https://firebase.google.com*
+https://www.w3.org*

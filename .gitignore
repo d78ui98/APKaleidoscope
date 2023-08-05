@@ -1,0 +1,4 @@
+static_tools/__pycache__/
+venv/
+__pycache__/
+app_source

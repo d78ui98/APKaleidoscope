@@ -1,0 +1,5 @@
+pdfkit
+flask
+androguard==3.3.5
+requests
+gplaycli==3.29
