@@ -2,7 +2,9 @@
 
 All the notable changes to this project will be documented in this file.
 
-## [Released] - 2023-08-05
+## [Released]
+
+## [1.0.0] - 2023-08-05
 - Initial release of APKaleidoscope.
 - Added proper readme file
 - Added changelog, License file
