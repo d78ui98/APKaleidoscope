@@ -48,17 +48,9 @@ class util:
 {util.OKGREEN}██  ██ ██     ██  ██ `\__,_)(___)`\___)(_)`\__,_)`\___/'(____/`\___)`\___/'| ,__/'`\___)         {util.ENDC}
 {util.OKGREEN}                                                                           | |                   {util.ENDC}
 {util.OKGREEN}                                                                           (_)                   {util.ENDC}
-{util.OKCYAN}                                                                - By Deepanshu{util.ENDC}
+{util.OKCYAN}                                              - Made By D78ui98{util.ENDC}
         """
         print(logo)
-
-
-# Check if in venv
-try:
-    os.environ['VIRTUAL_ENV']
-except KeyError:
-    util.mod_log("[-] ERROR: Not inside virtualenv. Do source venv/bin/activate", util.FAIL)
-    exit(0)
 
 def parse_args():
     """
@@ -80,6 +72,7 @@ def parse_args():
                         default="INFO", help="Set the logging level. Default is INFO.")
 
     return parser.parse_args()
+    
 
 
 class AutoApkScanner(object):
@@ -145,16 +138,37 @@ class AutoApkScanner(object):
         else:
             error_message = "Config file {} Not found".format(config_file)
             return error_message
+    
+    def reset_variables(self, section, variables):
+        """
+        
+        """
+        config_file = "glob.conf"
+        config = ConfigParser()
+        config.read(config_file)
+        for var in variables:
+            if config.has_option(section, var):
+                config.set(section, var, '')
+        with open(config_file, 'w') as f:
+            config.write(f)
 
 if __name__ == "__main__":
     try:
         #import ipdb; ipdb.set_trace()
         parse_args()
+
+        # Check if virtual environment is activated.
+        try:
+            os.environ['VIRTUAL_ENV']
+        except KeyError:
+            util.mod_log("[-] ERROR: Not inside virtualenv. Do source venv/bin/activate", util.FAIL)
+            exit(0)
         if len(sys.argv) <= 1:
             util.mod_log("[-] ERROR: Please enter apk file or apk link.", util.FAIL)
             exit(0)
         else:
             apk = sys.argv[1]
+        
         
         apk_file = ""
         obj_self = AutoApkScanner()
@@ -203,16 +217,10 @@ if __name__ == "__main__":
         all_file_path = obj.get_all_file_paths(extracted_apk_path)
         result = obj.extract_insecure_request_protocol(all_file_path)
         print(result)
+        
+        # Clear values of config file after use
+        obj_self.reset_variables('ABS PATH', ['path', 'apk_path', 'report_name'])
 
-        '''
-        # Extracted data to html
-        util.mod_log("[+] Writing extracted data to html template ", util.OKCYAN)
-        current_dir = os.getcwd()
-        os.chdir("static_tools")
-        subprocess.run(["flask", "run"], env=dict(os.environ, FLASK_APP='serve-files.py'))
-        subprocess.run(["python3", "-m", "flask", "run"])
-        os.chdir(current_dir)
-        '''
     except Exception as e:
-        print(str(e))
+        util.mod_print(f"[-] {str(e)}", util.FAIL)
         exit(0)

@@ -152,21 +152,3 @@ class SensitiveInfoExtractor(object):
         
         return result_list
 
-        
-
-#y=["/home/kali/Scripts/webapp_latest/app_source/orignal-smartplug.apk/resources/test.txt",  
-#  "/home/kali/Scripts/webapp_latest/app_source/orignal-smartplug.apk/resources/connector.py"]
-#y= SensitiveInfoExtractor().get_all_file_paths("/home/kali/webapp_latest/app_source/com.thewalleyapp.apk")
-#print(y)
-#asdf = SensitiveInfoExtractor().extract_insecure_request_protocol(y)
-#print(asdf)
-
-
-
-# for else condition
-# y= SensitiveInfoExtractor().get_all_file_paths("/home/kali/webapp_latest/app_source/com.thewalleyapp.apk")
-# x=SensitiveInfoExtractor().extract_all_sensitive_info(y, "/home/kali/webapp_latest/app_source")
-# #data stored on sd card
-# #x=SensitiveInfoExtractor().get_data_stored_on_sd_card(y)
-# print(x)
- 

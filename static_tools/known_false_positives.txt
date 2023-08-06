@@ -3,7 +3,7 @@ https://play.google.com/store
 http://schemas.android.com/apk/res/android
 https://www.google.com
 http://www.android.com/
-https://developer.mozilla.org/docs/Web/CSS/*
+https://developer.mozilla.org/*
 http://schemas.android.com/apk/res-auto
 http://localhost.*
 https://plus\.google\.com/share.*
@@ -13,3 +13,9 @@ google.*
 https://firebase.google.com*
 https://firebase.google.com*
 https://www.w3.org*
+http://schemas.android.com/aapt
+0.0.0.0
+http://www.w3.org/2000/svg
+127.0.0.1
+https://fontawesome*
+http://fontawesome.io/license/
