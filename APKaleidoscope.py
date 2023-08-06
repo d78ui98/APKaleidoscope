@@ -48,7 +48,7 @@ class util:
 {util.OKGREEN}██  ██ ██     ██  ██ `\__,_)(___)`\___)(_)`\__,_)`\___/'(____/`\___)`\___/'| ,__/'`\___)         {util.ENDC}
 {util.OKGREEN}                                                                           | |                   {util.ENDC}
 {util.OKGREEN}                                                                           (_)                   {util.ENDC}
-{util.OKCYAN}                                              - Made By D78ui98{util.ENDC}
+{util.OKCYAN}                                              - Made By Deepanshu{util.ENDC}
         """
         print(logo)
 
@@ -64,10 +64,12 @@ def parse_args():
         formatter_class=argparse.RawTextHelpFormatter
     )
 
-    parser.add_argument("apk", metavar="APK", type=str, nargs="?",
-                        help="Path to the APK file or link to be analyzed.")
+    parser.add_argument("-apk", metavar="APK", type=str, required=True,
+                    help="Path to the APK file to be analyzed.")
     parser.add_argument("-v", "--version", action="version", version="AutoApkScanner v1.0",
                         help="Display the version of AutoApkScanner.")
+    parser.add_argument("-source_code_path", metavar="APK", type=str,
+                    help="Enter a valid path of extracted source for apk.")
     parser.add_argument("-l", "--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
                         default="INFO", help="Set the logging level. Default is INFO.")
 
@@ -80,7 +82,7 @@ class AutoApkScanner(object):
     def __init__(self):
         pass
 
-    def create_dir_to_extract(self, apk_file):
+    def create_dir_to_extract(self, apk_file, extracted_path=None):
         '''
         Creating a folder to extract apk source code
         '''
@@ -154,8 +156,7 @@ class AutoApkScanner(object):
 
 if __name__ == "__main__":
     try:
-        #import ipdb; ipdb.set_trace()
-        parse_args()
+        args = parse_args()
 
         # Check if virtual environment is activated.
         try:
@@ -163,48 +164,41 @@ if __name__ == "__main__":
         except KeyError:
             util.mod_log("[-] ERROR: Not inside virtualenv. Do source venv/bin/activate", util.FAIL)
             exit(0)
-        if len(sys.argv) <= 1:
-            util.mod_log("[-] ERROR: Please enter apk file or apk link.", util.FAIL)
+
+        if not args.apk:
+            util.mod_log("[-] ERROR: Please provide the apk file using the -apk flag.", util.FAIL)
             exit(0)
-        else:
-            apk = sys.argv[1]
+
+        apk = args.apk
         
-        
-        apk_file = ""
         obj_self = AutoApkScanner()
-        apk_file = apk
-        apk_file_abs_path = obj_self.return_abs_path(apk_file)
+        apk_file_abs_path = obj_self.return_abs_path(apk)
         
-        if not obj_self.apk_exists(apk_file):
-            util.mod_log(f"[-] ERROR: {apk_file} not found in the current directory.", util.FAIL)
+        if not obj_self.apk_exists(apk_file_abs_path):
+            util.mod_log(f"[-] ERROR: {apk_file_abs_path} not found.", util.FAIL)
             exit(0)
         else:
-            util.mod_print(f"[+] {apk_file} found!", util.OKGREEN)
+            util.mod_print(f"[+] {apk_file_abs_path} found!", util.OKGREEN)
         time.sleep(1)
         
         # Extracting source code
-        target_dir = obj_self.create_dir_to_extract(apk_file)
-        if target_dir["result"] == 0:
-            target_dir = target_dir["path"]
-            pass
-        else:
-            target_dir = target_dir["path"]
-            obj_self.extract_source_code(apk_file_abs_path, target_dir)
-    
-        #Extracting abs path of extracted source code dir
-        extracted_apk_path = obj_self.return_abs_path(target_dir)
+        target_dir = obj_self.create_dir_to_extract(apk, extracted_path=args.source_code_path if args.source_code_path else None)
+        if target_dir["result"] == 1:
+            obj_self.extract_source_code(apk_file_abs_path, target_dir["path"])
+
+        # Extracting abs path of extracted source code dir
+        extracted_apk_path = obj_self.return_abs_path(target_dir["path"])
     
         # abs path to config
         obj_self.write_to_glob(extracted_apk_path, "path")
 
         # apk file to conf
-        dot_apk_file = obj_self.return_abs_path(apk_file)
-        obj_self.write_to_glob(dot_apk_file, "apk_path")
+        obj_self.write_to_glob(apk_file_abs_path, "apk_path")
 
         # writing apk name to conf
-        obj_self.write_to_glob(apk_file, "report_name")
+        obj_self.write_to_glob(apk, "report_name")
     
-        #Extracting hardcoded secrets
+        # Extracting hardcoded secrets
         obj = sensitive_info_extractor.SensitiveInfoExtractor()
         util.mod_log("[+] Reading all file paths ", util.OKCYAN)
         file_paths = obj.get_all_file_paths(extracted_apk_path)
