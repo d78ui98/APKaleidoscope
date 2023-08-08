@@ -2,7 +2,7 @@
 <div align="center">
 <a href="https://github.com/d78ui98/APKaleidoscope/tree/master#features">Features</a> • 
 <a href="https://github.com/d78ui98/APKaleidoscope/tree/master#installation">Installation</a> • 
-<a href="[docs/documentation.md](https://github.com/d78ui98/APKaleidoscope/blob/master/CHANGELOG.md)">Changlog</a>
+<a href="https://github.com/d78ui98/APKaleidoscope/blob/master/CHANGELOG.md">Changlog</a>
 </div>
 <p>
 
