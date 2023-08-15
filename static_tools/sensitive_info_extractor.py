@@ -2,7 +2,6 @@ import os
 import re
 
 from .exploit_intent_filter import ExploitIntentFilter
-from .verify_keys import VerifyKeys
 
 class bcolors:
     HEADER = '\033[95m'

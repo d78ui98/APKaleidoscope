@@ -6,9 +6,9 @@ import logging
 import requests
 import argparse
 import time 
+from static_tools import sensitive_info_extractor
 try:
     from configparser import ConfigParser
-    from static_tools import sensitive_info_extractor
     from androguard import session, misc
 except Exception as e:
     print(str(e))
