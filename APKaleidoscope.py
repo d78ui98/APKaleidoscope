@@ -87,13 +87,19 @@ class AutoApkScanner(object):
         Creating a folder to extract apk source code
         '''
         extracted_source_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_source", apk_file)
-        if os.path.exists(extracted_source_path) and os.path.isdir(extracted_source_path):
+
+        resources_path = os.path.join(extracted_source_path, "resources")
+        sources_path = os.path.join(extracted_source_path, "sources")
+
+        if os.path.exists(extracted_source_path) and os.path.isdir(extracted_source_path) and \
+           os.path.exists(resources_path) and os.path.isdir(resources_path) and \
+           os.path.exists(sources_path) and os.path.isdir(sources_path):
             util.mod_log("[+] Source code for apk - {} Already extracted. Skipping this step.".format(apk_file), util.OKCYAN)
             return {'result':0,"path":extracted_source_path}
         else:
-            os.makedirs(extracted_source_path)
-        util.mod_log("[+] Creating new directory for extracting apk : " + extracted_source_path, util.OKCYAN)
-        return {'result':1,"path":extracted_source_path}
+            os.makedirs(extracted_source_path, exist_ok=True)
+            util.mod_log("[+] Creating new directory for extracting apk : " + extracted_source_path, util.OKCYAN)
+            return {'result':1,"path":extracted_source_path}
     
     def extract_source_code(self, apk_file, target_dir):
         '''
