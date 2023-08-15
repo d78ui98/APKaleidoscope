@@ -110,7 +110,7 @@ class SensitiveInfoExtractor(object):
             "generic_api_key": "[a|A][p|P][i|I][_]?[k|K][e|E][y|Y].*['|\"][0-9a-zA-Z]{32,45}['|\"]",
             "generic_secret": "[s|S][e|E][c|C][r|R][e|E][t|T].*['|\"][0-9a-zA-Z]{32,45}['|\"]",
             "ip_address": r"(?:(?:1\d\d|2[0-5][0-5]|2[0-4]\d|0?[1-9]\d|0?0?\d)\.){3}(?:1\d\d|2[0-5][0-5]|2[0-4]\d|0?[1-9]\d|0?0?\d)",
-            "link_finder": "((?:https?://|s?ftps?://|file://|javascript:|www\d{0,3}[.])[\w().=/;,#:@?&~*+!$%\'{}-]+)",
+            "link_finder": "((?:https?://|www\d{0,3}[.])[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+[\w().=/;,#:@?&~*+!$%{}-]*)",
             "password_in_url": "[a-zA-Z]{3,10}://[^/\\s:@]{3,20}:[^/\\s:@]{3,20}@.{1,100}[\"'\\s]"
             }
         patterns = list(zip(patterns.keys(), patterns.values()))
