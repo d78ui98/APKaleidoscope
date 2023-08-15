@@ -4,11 +4,6 @@ import re
 from .exploit_intent_filter import ExploitIntentFilter
 from .verify_keys import VerifyKeys
 
-# verify = VerifyKeys()
-# def action():
-#     return verify.check_slack_token("xoxb-1075004303153-1844697545025-BeMUv8EJXGMb8HTihRnHLS06")
-
-
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
