@@ -6,6 +6,7 @@ import logging
 import requests
 import argparse
 import time 
+import xml.etree.ElementTree as ET
 from static_tools import sensitive_info_extractor
 try:
     from configparser import ConfigParser
@@ -114,6 +115,83 @@ class AutoApkScanner(object):
         output = subprocess.run([jadx_path, apk_file, "-d", target_dir])
         print(output)
     
+    def extract_manifest_info(self, apk_file):
+        """Extracts basic information from an Android Manifest file.
+
+        Args:
+            manifest_path (str): Path to the AndroidManifest.xml file.
+
+        Returns:
+            dict: A dictionary containing extracted information.
+        """
+        extracted_source_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_source", apk_file)
+        manifest_path = os.path.join(extracted_source_path, "resources", "AndroidManifest.xml")
+        
+        if not os.path.isfile(manifest_path):
+            util.mod_log(f"[-] ERROR: Manifest file {manifest_path} not found.", util.FAIL)
+
+        etparse = ET.parse(manifest_path)
+        manifest = etparse.getroot()
+
+        if not manifest:
+            util.mod_log(f"[-] ERROR: Error parsing the manifest file for {apk_file}.", util.FAIL)
+
+        android_namespace = '{http://schemas.android.com/apk/res/android}'
+
+        data = {
+        'platformBuildVersionCode': manifest.attrib.get('platformBuildVersionCode', "Not available"),
+        'compileSdkVersion': manifest.attrib.get('compileSdkVersion', "Not available"),
+        'permissions': [elem.attrib[f'{android_namespace}name'] for elem in manifest.findall('uses-permission')],
+        'activities': [elem.attrib[f'{android_namespace}name'] for elem in manifest.findall('application/activity')],
+        'services': [elem.attrib[f'{android_namespace}name'] for elem in manifest.findall('application/service')],
+        'receivers': [elem.attrib[f'{android_namespace}name'] for elem in manifest.findall('application/receiver')],
+        'providers': [elem.attrib[f'{android_namespace}name'] for elem in manifest.findall('application/provider')],
+        'package_name': manifest.attrib.get('package', "Not available")
+    }
+
+        indent = "    "
+
+        util.mod_log(f"[+] Package Name:", util.OKCYAN)
+        print(indent + data['package_name'] + "\n")
+
+        util.mod_log(f"[+] Platform Build Version Code:", util.OKCYAN)
+        print(indent + str(data['platformBuildVersionCode']) + "\n")
+
+        util.mod_log(f"[+] Compile SDK Version:", util.OKCYAN)
+        print(indent + str(data['compileSdkVersion']) + "\n")
+
+        if data['permissions']:
+            util.mod_log(f"[+] Permissions:", util.OKCYAN)
+            for permission in data['permissions']:
+                print(indent + permission)
+            print()
+
+        if data['activities']:
+            util.mod_log(f"[+] Activities:", util.OKCYAN)
+            for activity in data['activities']:
+                print(indent + activity)
+            print()
+
+        if data['services']:
+            util.mod_log(f"[+] Services:", util.OKCYAN)
+            for service in data['services']:
+                print(indent + service)
+            print()
+
+        if data['receivers']:
+            util.mod_log(f"[+] Receivers:", util.OKCYAN)
+            for receiver in data['receivers']:
+                print(indent + receiver)
+            print()
+
+        if data['providers']:
+            util.mod_log(f"[+] Providers:", util.OKCYAN)
+            for provider in data['providers']:
+                print(indent + provider)
+            print()
+
+        return data
+
     def return_abs_path(self, path):
         '''
         Returns the absolute path
@@ -184,7 +262,6 @@ if __name__ == "__main__":
         
         obj_self = AutoApkScanner()
         apk_file_abs_path = obj_self.return_abs_path(apk)
-        
         if not obj_self.apk_exists(apk_file_abs_path):
             util.mod_log(f"[-] ERROR: {apk_file_abs_path} not found.", util.FAIL)
             exit(0)
@@ -199,6 +276,9 @@ if __name__ == "__main__":
 
         # Extracting abs path of extracted source code dir
         extracted_apk_path = obj_self.return_abs_path(target_dir["path"])
+
+        # Extraction useful infomration from android menifest file
+        obj_self.extract_manifest_info(apk)
     
         # abs path to config
         obj_self.write_to_glob(extracted_apk_path, "path")
