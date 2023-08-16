@@ -34,18 +34,19 @@ class SensitiveInfoExtractor(object):
         Out: string path: key type: value
         """
         all_sensitive_info_list = []
+        indent = "    "
         try:
-            for file in list_of_files: # for each files
-                read = open(file, "r", encoding='utf-8', errors='ignore').read() # read them
-                types_ioc_list = self.extract(read) # and call extract function
+            for file in list_of_files: 
+                read = open(file, "r", encoding='utf-8', errors='ignore').read() 
+                types_ioc_list = self.extract(read) 
                 #fetching relative path
                 real_relative_path = os.path.relpath(file, relative_path)
                 for items in types_ioc_list:
-                    print(items)
+                    print(indent + items)
                     items = "{}: {}".format(real_relative_path, items)
                     all_sensitive_info_list.append(items)
             #return all_sensitive_info_list
-        except Exception as e: # if it gives error
+        except Exception as e:
             return str(e) 
     
     def extract_insecure_request_protocol(self, list_of_files):
