@@ -111,7 +111,6 @@ class AutoApkScanner(object):
         is_windows = os.name == 'nt'
         jadx_executable = "jadx.bat" if is_windows else "jadx"
         jadx_path = os.path.join(os.getcwd(), "static_tools", "jadx", "bin", jadx_executable)
-        print(jadx_path)
         output = subprocess.run([jadx_path, apk_file, "-d", target_dir])
         print(output)
     
