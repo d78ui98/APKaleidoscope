@@ -4,6 +4,11 @@ All the notable changes to this project will be documented in this file.
 
 ## [Released]
 
+## [1.0.0] - 2023-08-16
+- Optimized code to improve speed
+- Added better support for windows
+- Removed redundant files
+
 ## [1.0.0] - 2023-08-05
 - Initial release of APKaleidoscope.
 - Added proper readme file
