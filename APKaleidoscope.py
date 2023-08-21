@@ -10,11 +10,7 @@ import datetime
 import xml.etree.ElementTree as ET
 from static_tools import sensitive_info_extractor
 from report_gen import ReportGen
-try:
-    from configparser import ConfigParser
-    from androguard import session, misc
-except Exception as e:
-    print(str(e))
+from configparser import ConfigParser
 
 """
     Title:      APKaleidoscope

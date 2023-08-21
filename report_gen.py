@@ -4,6 +4,14 @@ import re
 import xml.etree.ElementTree as ET
 import datetime
 
+"""
+    Title:      APKaleidoscope
+    Desc:       Android security insights in full spectrum.
+    Author:     Deepanshu Gajbhiye
+    Version:    1.0.0
+    GitHub URL: https://github.com/d78ui98/APKaleidoscope/
+"""
+
 class ReportGen(object):
 
     def __init__(self, manifest, res_path, source_path, template_path):
