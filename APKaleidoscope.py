@@ -6,8 +6,10 @@ import logging
 import requests
 import argparse
 import time 
+import datetime
 import xml.etree.ElementTree as ET
 from static_tools import sensitive_info_extractor
+from report_gen import ReportGen
 try:
     from configparser import ConfigParser
     from androguard import session, misc
@@ -80,6 +82,8 @@ def parse_args():
                     help="Enter a valid path of extracted source for apk.")
     parser.add_argument("-l", "--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
                         default="INFO", help="Set the logging level. Default is INFO.")
+    parser.add_argument("--report", action="store_true", help="Generates a report if this argument is provided.")
+
 
     return parser.parse_args()
     
@@ -274,7 +278,7 @@ if __name__ == "__main__":
             exit(0)
 
         apk = args.apk
-        
+    
         obj_self = AutoApkScanner()
         apk_file_abs_path = obj_self.return_abs_path(apk)
         if not obj_self.apk_exists(apk_file_abs_path):
@@ -309,6 +313,45 @@ if __name__ == "__main__":
         result = obj.extract_insecure_request_protocol(all_file_path)
         print(result)
 
+        ############## REPORT GENERATION #############
+        if args.report:
+            res_path = "/home/kali/Desktop/local/APKaleidoscope/app_source/com.thewalleyapp.apk/resources/"
+            source_path = "/home/kali/Desktop/local/APKaleidoscope/app_source/com.thewalleyapp.apk/sources/"
+
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            template_path = os.path.join(script_dir, "report_template.html")
+
+            try:
+                android_manifest_path = os.path.join(res_path, "AndroidManifest.xml")
+                etparse = ET.parse(android_manifest_path)
+                manifest = etparse.getroot()
+
+                # update the attributes by stripping out the namespace
+                for elem in manifest.iter():
+                    elem.attrib = {k.replace('{http://schemas.android.com/apk/res/android}', 'android:'): v for k, v in elem.attrib.items()}
+
+                obj = ReportGen(manifest, res_path, source_path, template_path)
+
+                permissions  = obj.extract_permissions(manifest)
+                dangerous_permission = obj.extract_dangerous_permissions(manifest)
+
+                html_dict = {}
+                html_dict['build'] = obj.get_build_information()
+                html_dict['package_name'] = manifest.attrib['package']
+                html_dict['android_version'] = manifest.attrib['android:versionCode']
+                html_dict['date'] = datetime.datetime.today().strftime('%d/%m/%Y')
+                html_dict['permissions'] = permissions
+                html_dict['dangerous_permission'] = dangerous_permission
+                html_dict['intent_grep'] = obj.grep_keyword('intent')
+                html_dict['internal_storage_grep'] = obj.grep_keyword('internal_storage')
+                html_dict['external_storage_grep'] = obj.grep_keyword('external_storage')
+                #print(html_dict)
+
+                report = obj.renderTemplate('report_template.html', html_dict)
+                obj.grenerate_html_report(report)
+            except Exception as e:
+                print(str(e))
+        
     except Exception as e:
         util.mod_print(f"[-] {str(e)}", util.FAIL)
         exit(0)
