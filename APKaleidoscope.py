@@ -257,45 +257,6 @@ class AutoApkScanner(object):
         Check if the apk file exists or not.
         '''
         return os.path.isfile(apk_filename)
-    
-    def write_to_glob(self, to_write, variable_to_update):
-        '''
-        Write to global conf file
-        '''
-
-        config_file = "glob.conf"
-
-        if os.path.isfile(config_file):
-
-            # read conf file
-            config_object = ConfigParser()
-            config_object.read(config_file)
-            path = config_object["ABS PATH"] #format for reading config file
-
-            # Update conf file
-            path[variable_to_update] = to_write
-
-            # write changes to file
-            with open(config_file, 'w') as conf:  #with is used to eliminate closing of file option format for opening config file
-                config_object.write(conf)
-            success_message = "Added Absolute path to {}".format(config_file)
-            return success_message
-        else:
-            error_message = "Config file {} Not found".format(config_file)
-            return error_message
-    
-    def reset_variables(self, section, variables):
-        """
-        
-        """
-        config_file = "glob.conf"
-        config = ConfigParser()
-        config.read(config_file)
-        for var in variables:
-            if config.has_option(section, var):
-                config.set(section, var, '')
-        with open(config_file, 'w') as f:
-            config.write(f)
 
 if __name__ == "__main__":
     try:
@@ -334,15 +295,6 @@ if __name__ == "__main__":
         # Extraction useful infomration from android menifest file
         obj_self.extract_manifest_info(apk)
     
-        # abs path to config
-        obj_self.write_to_glob(extracted_apk_path, "path")
-
-        # apk file to conf
-        obj_self.write_to_glob(apk_file_abs_path, "apk_path")
-
-        # writing apk name to conf
-        obj_self.write_to_glob(apk, "report_name")
-    
         # Extracting hardcoded secrets
         obj = sensitive_info_extractor.SensitiveInfoExtractor()
         util.mod_log("[+] Reading all file paths ", util.OKCYAN)
@@ -356,9 +308,6 @@ if __name__ == "__main__":
         all_file_path = obj.get_all_file_paths(extracted_apk_path)
         result = obj.extract_insecure_request_protocol(all_file_path)
         print(result)
-        
-        # Clear values of config file after use
-        obj_self.reset_variables('ABS PATH', ['path', 'apk_path', 'report_name'])
 
     except Exception as e:
         util.mod_print(f"[-] {str(e)}", util.FAIL)
