@@ -14,6 +14,13 @@ try:
 except Exception as e:
     print(str(e))
 
+"""
+    Title:      APKaleidoscope
+    Desc:       Android security insights in full spectrum.
+    Author:     Deepanshu Gajbhiye
+    Version:    1.0.0
+    GitHub URL: https://github.com/d78ui98/APKaleidoscope/
+"""
 
 logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 

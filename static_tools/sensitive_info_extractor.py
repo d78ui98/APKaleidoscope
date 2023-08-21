@@ -3,6 +3,14 @@ import re
 
 from .exploit_intent_filter import ExploitIntentFilter
 
+"""
+    Title:      APKaleidoscope
+    Desc:       Android security insights in full spectrum.
+    Author:     Deepanshu Gajbhiye
+    Version:    1.0.0
+    GitHub URL: https://github.com/d78ui98/APKaleidoscope/
+"""
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
