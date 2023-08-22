@@ -122,13 +122,8 @@ class AutoApkScanner(object):
         print(output)
     
     def extract_manifest_info(self, apk_file):
-        """Extracts basic information from an Android Manifest file.
-
-        Args:
-            manifest_path (str): Path to the AndroidManifest.xml file.
-
-        Returns:
-            dict: A dictionary containing extracted information.
+        """
+        Extracts basic information from an Android Manifest file.
         """
         extracted_source_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_source", apk_file)
         manifest_path = os.path.join(extracted_source_path, "resources", "AndroidManifest.xml")
@@ -262,8 +257,14 @@ class AutoApkScanner(object):
         """
         Convert an HTML file to a PDF.
         """
-        logging.basicConfig(level=logging.ERROR, format="%(message)s")
         HTML(html_file).write_pdf(pdf_name)
+    
+    def clean_apk_name(self, apk_name):
+        """
+        This function removes 'com' and 'apk' parts from the apk_name if they exist.
+        """
+        cleaned_name = re.sub(r'(\.com|\.apk)', '', apk_name)
+        return cleaned_name
 
 if __name__ == "__main__":
     try:
@@ -317,7 +318,7 @@ if __name__ == "__main__":
         print(result)
 
         ############## REPORT GENERATION #############
-        
+
         if args.report:
             
             # Extracting all the required paths
@@ -355,14 +356,19 @@ if __name__ == "__main__":
                 html_dict['external_storage_grep'] = obj.grep_keyword('external_storage')
                 #print(html_dict)
 
+                # Ensure 'reports' directory exists
+                if not os.path.exists('reports'):
+                    os.makedirs('reports')
+
                 # Generating the html report
                 report_content = obj.render_template('report_template.html', html_dict)
-                html_report_path = "reports/report_{}.html".format(apk)
+                cleaned_apk_name = obj_self.clean_apk_name(apk)
+                html_report_path = "reports/report_{}.html".format(cleaned_apk_name)
                 obj.grenerate_html_report(report_content, html_report_path)
                 util.mod_print("[+] Generated HTML report - {}".format(html_report_path), util.OKCYAN)
 
                 # Converting html report to pdf.
-                pdf_name = f"report_{apk}.pdf"
+                pdf_name = f"report_{cleaned_apk_name}.pdf"
                 pdf_path = "reports/{}".format(pdf_name)
                 obj_self.convert_html_to_pdf(html_report_path, pdf_path)
                 util.mod_print("[+] Generated PDF report - {}".format(pdf_path), util.OKCYAN)
