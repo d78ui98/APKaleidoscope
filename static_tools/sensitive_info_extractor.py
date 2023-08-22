@@ -1,8 +1,6 @@
 import os
 import re
 
-from .exploit_intent_filter import ExploitIntentFilter
-
 """
     Title:      APKaleidoscope
     Desc:       Android security insights in full spectrum.
@@ -140,18 +138,4 @@ class SensitiveInfoExtractor(object):
                     ioc_list.append(a)
         return ioc_list
 
-    def get_data_stored_on_sd_card(self, all_file_path):
-
-        # Declaration
-        object = ExploitIntentFilter()
-        
-        # code 
-        result_list = []
-        for file in all_file_path:
-            if file.endswith(".java"):
-                result = object.search_vulnerable_code(file, "-e getExternalStorageDirectory -e getExternalFilesDir")
-                if len(result) > 0:
-                    result_list.append(result)
-        
-        return result_list
 
