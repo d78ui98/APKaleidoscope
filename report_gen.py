@@ -28,44 +28,64 @@ class ReportGen(object):
         This method is used to render the template and relevant html data.
 
         """
-        t_templates_str = {
-        'report_template.html': self.load_template(self.template_path),
-        'grep_lines.html': '<div><span class="grep_filepath">{{ filepath }}</span>:<span class="grep_line">{{ line }}</span>:{{ content }}</div>'
-        }
-        render = t_templates_str[template_name]
-        for k,v in datas.items():
-            if escape:
-                pass
-            if isinstance(v, list):
-                v=self.list_to_html(v)
-            render = re.sub('{{\s*'+k+'\s*}}', v, render)
-        return render
+        try:
+            t_templates_str = {
+                'report_template.html': self.load_template(self.template_path),
+                'grep_lines.html': '<div><span class="grep_filepath">{{ filepath }}</span>:<span class="grep_line">{{ line }}</span>:{{ content }}</div>'
+            }
+            render = t_templates_str.get(template_name, "")
+            if not render:
+                util.mod_log(f"[-] ERROR: Template {template_name} not found.", util.FAIL)
+                return ""
+
+            for k, v in datas.items():
+                if isinstance(v, list):
+                    v = self.list_to_html(v)
+                render = re.sub('{{\s*' + k + '\s*}}', v, render)
+            return render
+
+        except Exception as e:
+            util.mod_log(f"[-] ERROR in render_template: {str(e)}", util.FAIL)
+            return ""
 
     def list_to_html(self, list_items):
         """
         This method is used to covert list to unordered list in html
         """
-        items = [f"<li>{perm}</li>" for perm in list_items]
-        return "<ul>" + "\n".join(items) + "</ul>"
+        try:
+            if not isinstance(list_items, list):
+                util.mod_log("[-] ERROR: The provided input is not a list.", util.FAIL)
+                return ""
+            items = [f"<li>{perm}</li>" for perm in list_items]
+            return "<ul>" + "\n".join(items) + "</ul>"
+        
+        except Exception as e:
+            util.mod_log(f"[-] ERROR in list_to_html: {str(e)}", util.FAIL)
+            return ""
 
 
     def grenerate_html_report(self, report, html_report_path):
         """
         This method is used to generate a final html report which can be later converted to pdf
         """
-        fp = open(html_report_path, 'w')
-        fp.write(report)
-        print("report generated")
-        fp.close()
+        try:
+            with open(html_report_path, 'w') as fp:
+                fp.write(report)
+            print("report generated")
+        
+        except Exception as e:
+            util.mod_log(f"[-] ERROR in generate_html_report: {str(e)}", util.FAIL)
 
     def load_template(self, template_path):
         """
         read of the template.
         """
-        f = open(self.template_path)
-        result = f.read()
-        f.close()
-        return result
+        try:
+            with open(self.template_path) as f:
+                return f.read()
+        except Exception as e:
+            util.mod_log(f"[-] ERROR in load_template: {str(e)}", util.FAIL)
+            return ""
 
 
     def grep_keyword(self, keyword):
@@ -112,133 +132,103 @@ class ReportGen(object):
         """
         This method is used add the html tags to grep output to color the output for better presentation
         """
-        output = ''
+        try:
+            output = ''
+            for grep in grep_result.split("\n"):
+                tmp = grep.split(':')
+                if len(tmp) < 3:  # Ensure there are enough components in the split result
+                    continue
+                filepath, line, content = tmp[0], tmp[1], ':'.join(tmp[2:])
+                content = re.sub(regexp, 'ABRACADABRA1\\1ABRACADABRA2', content)
+                output += self.render_template('grep_lines.html', {'filepath': filepath, 'line': line, 'content': content}, True)
+                output = output.replace('ABRACADABRA1', '<span class="grep_keyword">').replace('ABRACADABRA2', '</span>')
+            return output
 
-        for grep in grep_result.split("\n"):
-            tmp = grep.split(':')
-            filepath = tmp[0]
-            line = tmp[1]
-            content = ':'.join(tmp[2:])
-
-            content = re.sub(regexp, 'ABRACADABRA1\\1ABRACADABRA2', content)
-
-            output = output + self.render_template('grep_lines.html', {'filepath':filepath,'line':line,'content':content}, True)
-            output = output.replace('ABRACADABRA1', '<span class="grep_keyword">' ).replace( 'ABRACADABRA2', '</span>')
-
-        return output
+        except Exception as e:
+            util.mod_log(f"[-] ERROR in add_html_tag: {str(e)}", util.FAIL)
+            return ""
 
     def get_build_information(self):
         """
         This method is used to get build information from android manifest.xml.
         """
-        if 'platformBuildVersionCode' in self.manifest.attrib:
-            version = self.manifest.attrib['platformBuildVersionCode']
-        elif 'compileSdkVersion' in self.manifest.attrib:
-            version = self.manifest.attrib['compileSdkVersion']
-        else:
-            version = '?'
-
-        return version
+        try:
+            version = self.manifest.attrib.get('platformBuildVersionCode',
+                                               self.manifest.attrib.get('compileSdkVersion', '?'))
+            return version
+        
+        except Exception as e:
+            util.mod_log(f"[-] ERROR in get_build_information: {str(e)}", util.FAIL)
+            return "?"
 
     def extract_permissions(self, manifest):
         """
         This method is used to extract permissions from the android manifest.xml.
         """
-        permissions = []
-        for permission_elem in self.manifest.findall('.//uses-permission'):
-            permission_name = permission_elem.attrib.get('android:name')
-            if permission_name:
-                permissions.append(permission_name)
-        return permissions
+        try:
+            permissions = []
+            for permission_elem in self.manifest.findall('.//uses-permission'):
+                permission_name = permission_elem.attrib.get('android:name')
+                if permission_name:
+                    permissions.append(permission_name)
+            return permissions
+        
+        except Exception as e:
+            util.mod_log(f"[-] ERROR in extract_permissions: {str(e)}", util.FAIL)
+            return []
 
     def extract_dangerous_permissions(self, manifest):
         """
         This method is used to extracts dangerous permissions from the android  manifest.xml.
         """
         permissions = []
-        for permission_elem in self.manifest.findall('.//uses-permission'):
-            permission_name = permission_elem.attrib.get('android:name')
-            dangerous_permission_list = [
-                "android.permission.READ_CALENDAR",
-                "android.permission.WRITE_CALENDAR",
-                "android.permission.CAMERA",
-                "android.permission.READ_CONTACTS",
-                "android.permission.WRITE_CONTACTS",
-                "android.permission.GET_ACCOUNTS",
-                "android.permission.ACCESS_FINE_LOCATION",
-                "android.permission.ACCESS_COARSE_LOCATION",
-                "android.permission.RECORD_AUDIO",
-                "android.permission.READ_PHONE_STATE",
-                "android.permission.READ_PHONE_NUMBERS",
-                "android.permission.CALL_PHONE",
-                "android.permission.ANSWER_PHONE_CALLS",
-                "android.permission.READ_CALL_LOG",
-                "android.permission.WRITE_CALL_LOG",
-                "android.permission.ADD_VOICEMAIL",
-                "android.permission.USE_SIP",
-                "android.permission.PROCESS_OUTGOING_CALLS",
-                "android.permission.BODY_SENSORS",
-                "android.permission.SEND_SMS",
-                "android.permission.RECEIVE_SMS",
-                "android.permission.READ_SMS",
-                "android.permission.RECEIVE_WAP_PUSH",
-                "android.permission.RECEIVE_MMS",
-                "android.permission.READ_EXTERNAL_STORAGE",
-                "android.permission.WRITE_EXTERNAL_STORAGE",
-                "android.permission.MOUNT_UNMOUNT_FILESYSTEMS",
-                "android.permission.READ_HISTORY_BOOKMARKS",
-                "android.permission.WRITE_HISTORY_BOOKMARKS",
-                "android.permission.INSTALL_PACKAGES",
-                "android.permission.RECEIVE_BOOT_COMPLETED",
-                "android.permission.READ_LOGS",
-                "android.permission.CHANGE_WIFI_STATE",
-                "android.permission.DISABLE_KEYGUARD",
-                "android.permission.GET_TASKS",
-                "android.permission.BLUETOOTH",
-                "android.permission.CHANGE_NETWORK_STATE",
-                "android.permission.ACCESS_WIFI_STATE",
-            ]
-            if permission_name:
-                if permission_name in dangerous_permission_list:
-                    permissions.append(permission_name)
-        return permissions
-
-if __name__ == "__main__":
-
-    res_path = "/home/kali/Desktop/local/APKaleidoscope/app_source/com.thewalleyapp.apk/resources/"
-    source_path = "/home/kali/Desktop/local/APKaleidoscope/app_source/com.thewalleyapp.apk/sources/"
-
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    template_path = os.path.join(script_dir, "report_template.html")
-
-    try:
-        android_manifest_path = os.path.join(res_path, "AndroidManifest.xml")
-        etparse = ET.parse(android_manifest_path)
-        self.manifest = etparse.getroot()
-
-        # update the attributes by stripping out the namespace
-        for elem in self.manifest.iter():
-            elem.attrib = {k.replace('{http://schemas.android.com/apk/res/android}', 'android:'): v for k, v in elem.attrib.items()}
-
-        obj = ReportGen()
-
-        permissions  = obj.extract_permissions(self.manifest)
-        dangerous_permission = obj.extract_dangerous_permissions(self.manifest)
-
-        html_dict = {}
-        html_dict['build'] = obj.get_build_information()
-        html_dict['package_name'] = self.manifest.attrib['package']
-        html_dict['android_version'] = self.manifest.attrib['android:versionCode']
-        html_dict['date'] = datetime.datetime.today().strftime('%d/%m/%Y')
-        html_dict['permissions'] = permissions
-        html_dict['dangerous_permission'] = dangerous_permission
-        html_dict['intent_grep'] = obj.grep_keyword('intent')
-        html_dict['internal_storage_grep'] = obj.grep_keyword('internal_storage')
-        html_dict['external_storage_grep'] = obj.grep_keyword('external_storage')
-        #print(html_dict)
-
-        report = obj.render_template('report_template.html', html_dict)
-        obj.grenerate_html_report(report)
-    
-    except Exception as e:
-        print(str(e))
+        try:
+            for permission_elem in self.manifest.findall('.//uses-permission'):
+                permission_name = permission_elem.attrib.get('android:name')
+                dangerous_permission_list = [
+                    "android.permission.READ_CALENDAR",
+                    "android.permission.WRITE_CALENDAR",
+                    "android.permission.CAMERA",
+                    "android.permission.READ_CONTACTS",
+                    "android.permission.WRITE_CONTACTS",
+                    "android.permission.GET_ACCOUNTS",
+                    "android.permission.ACCESS_FINE_LOCATION",
+                    "android.permission.ACCESS_COARSE_LOCATION",
+                    "android.permission.RECORD_AUDIO",
+                    "android.permission.READ_PHONE_STATE",
+                    "android.permission.READ_PHONE_NUMBERS",
+                    "android.permission.CALL_PHONE",
+                    "android.permission.ANSWER_PHONE_CALLS",
+                    "android.permission.READ_CALL_LOG",
+                    "android.permission.WRITE_CALL_LOG",
+                    "android.permission.ADD_VOICEMAIL",
+                    "android.permission.USE_SIP",
+                    "android.permission.PROCESS_OUTGOING_CALLS",
+                    "android.permission.BODY_SENSORS",
+                    "android.permission.SEND_SMS",
+                    "android.permission.RECEIVE_SMS",
+                    "android.permission.READ_SMS",
+                    "android.permission.RECEIVE_WAP_PUSH",
+                    "android.permission.RECEIVE_MMS",
+                    "android.permission.READ_EXTERNAL_STORAGE",
+                    "android.permission.WRITE_EXTERNAL_STORAGE",
+                    "android.permission.MOUNT_UNMOUNT_FILESYSTEMS",
+                    "android.permission.READ_HISTORY_BOOKMARKS",
+                    "android.permission.WRITE_HISTORY_BOOKMARKS",
+                    "android.permission.INSTALL_PACKAGES",
+                    "android.permission.RECEIVE_BOOT_COMPLETED",
+                    "android.permission.READ_LOGS",
+                    "android.permission.CHANGE_WIFI_STATE",
+                    "android.permission.DISABLE_KEYGUARD",
+                    "android.permission.GET_TASKS",
+                    "android.permission.BLUETOOTH",
+                    "android.permission.CHANGE_NETWORK_STATE",
+                    "android.permission.ACCESS_WIFI_STATE",
+                ]
+                if permission_name:
+                    if permission_name in dangerous_permission_list:
+                        permissions.append(permission_name)
+            return permissions
+        except Exception as e:
+            util.mod_log(f"[-] ERROR in extract_dangerous_permissions: {str(e)}", util.FAIL)
+            return []
