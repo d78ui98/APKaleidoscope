@@ -2,8 +2,8 @@ import os
 import subprocess
 import sys
 import re
+from weasyprint import HTML
 import logging
-import requests
 import argparse
 import time 
 import datetime
@@ -50,7 +50,7 @@ class util:
 {util.OKGREEN} ████  █████  ██  ██        (_ )        _     ( )                                                {util.ENDC}
 {util.OKGREEN}██  ██ ██  ██ ██ ██    _ _   | |   __  (_)   _| |   _     ___   ___    _    _ _      __           {util.ENDC}
 {util.OKGREEN}██████ █████  ████    /'_` ) | |  /'_`\| | /'_` | /'_`\ /',__) /'__) /'_`\ ( '_`\  /'_`\          {util.ENDC}
-{util.OKGREEN}██  ██ ██     ██ ██  ( (_| | | | (  __/| |( (_| |( (_) )\__, \( (__ ( (_) )| (_) )(  __/         {util.ENDC}
+{util.OKGREEN}██  ██ ██     ██ ██  ( (_| | | | (  __/| |( (_| |( (_) )\__, \( (__ ( (_) )| (_) ||  __/         {util.ENDC}
 {util.OKGREEN}██  ██ ██     ██  ██ `\__,_)(___)`\___)(_)`\__,_)`\___/'(____/`\___)`\___/'| ,__/'`\___)         {util.ENDC}
 {util.OKGREEN}                                                                           | |                   {util.ENDC}
 {util.OKGREEN}                                                                           (_)                   {util.ENDC}
@@ -257,6 +257,13 @@ class AutoApkScanner(object):
         Check if the apk file exists or not.
         '''
         return os.path.isfile(apk_filename)
+    
+    def convert_html_to_pdf(self, html_file, pdf_name):
+        """
+        Convert an HTML file to a PDF.
+        """
+        logging.basicConfig(level=logging.ERROR, format="%(message)s")
+        HTML(html_file).write_pdf(pdf_name)
 
 if __name__ == "__main__":
     try:
@@ -274,7 +281,7 @@ if __name__ == "__main__":
             exit(0)
 
         apk = args.apk
-    
+
         obj_self = AutoApkScanner()
         apk_file_abs_path = obj_self.return_abs_path(apk)
         if not obj_self.apk_exists(apk_file_abs_path):
@@ -310,22 +317,27 @@ if __name__ == "__main__":
         print(result)
 
         ############## REPORT GENERATION #############
+        
         if args.report:
-            res_path = "/home/kali/Desktop/local/APKaleidoscope/app_source/com.thewalleyapp.apk/resources/"
-            source_path = "/home/kali/Desktop/local/APKaleidoscope/app_source/com.thewalleyapp.apk/sources/"
-
+            
+            # Extracting all the required paths
+            extracted_source_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_source", apk)
+            res_path = os.path.join(extracted_source_path, "resources")
+            source_path = os.path.join(extracted_source_path, "sources")
             script_dir = os.path.dirname(os.path.abspath(__file__))
             template_path = os.path.join(script_dir, "report_template.html")
 
             try:
+                # Reading the android manifest file.
                 android_manifest_path = os.path.join(res_path, "AndroidManifest.xml")
                 etparse = ET.parse(android_manifest_path)
                 manifest = etparse.getroot()
 
-                # update the attributes by stripping out the namespace
+                # Update the attributes by stripping out the namespace
                 for elem in manifest.iter():
                     elem.attrib = {k.replace('{http://schemas.android.com/apk/res/android}', 'android:'): v for k, v in elem.attrib.items()}
 
+                # Creating object for report generation module.
                 obj = ReportGen(manifest, res_path, source_path, template_path)
 
                 permissions  = obj.extract_permissions(manifest)
@@ -343,8 +355,18 @@ if __name__ == "__main__":
                 html_dict['external_storage_grep'] = obj.grep_keyword('external_storage')
                 #print(html_dict)
 
-                report = obj.renderTemplate('report_template.html', html_dict)
-                obj.grenerate_html_report(report)
+                # Generating the html report
+                report_content = obj.render_template('report_template.html', html_dict)
+                html_report_path = "reports/report_{}.html".format(apk)
+                obj.grenerate_html_report(report_content, html_report_path)
+                util.mod_print("[+] Generated HTML report - {}".format(html_report_path), util.OKCYAN)
+
+                # Converting html report to pdf.
+                pdf_name = f"report_{apk}.pdf"
+                pdf_path = "reports/{}".format(pdf_name)
+                obj_self.convert_html_to_pdf(html_report_path, pdf_path)
+                util.mod_print("[+] Generated PDF report - {}".format(pdf_path), util.OKCYAN)
+
             except Exception as e:
                 print(str(e))
         
