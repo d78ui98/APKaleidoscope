@@ -15,19 +15,22 @@ import datetime
 class ReportGen(object):
 
     def __init__(self, manifest, res_path, source_path, template_path):
+        """
+        Defining few important variables which are used throughout the class.
+        """
         self.manifest = manifest
         self.res_path = res_path
         self.source_path = source_path
         self.template_path = template_path
 
-    def renderTemplate(self, template_name, datas, escape=False):
+    def render_template(self, template_name, datas, escape=False):
         """
         This method is used to render the template and relevant html data.
 
         """
         t_templates_str = {
         'report_template.html': self.load_template(self.template_path),
-        '_grep_line2.html': '<div><span class="grep_filepath">{{ filepath }}</span>:<span class="grep_line">{{ line }}</span>:{{ content }}</div>'
+        'grep_lines.html': '<div><span class="grep_filepath">{{ filepath }}</span>:<span class="grep_line">{{ line }}</span>:{{ content }}</div>'
         }
         render = t_templates_str[template_name]
         for k,v in datas.items():
@@ -46,11 +49,11 @@ class ReportGen(object):
         return "<ul>" + "\n".join(items) + "</ul>"
 
 
-    def grenerate_html_report(self, report):
+    def grenerate_html_report(self, report, html_report_path):
         """
         This method is used to generate a final html report which can be later converted to pdf
         """
-        fp = open('final_report.html', 'w')
+        fp = open(html_report_path, 'w')
         fp.write(report)
         print("report generated")
         fp.close()
@@ -119,7 +122,7 @@ class ReportGen(object):
 
             content = re.sub(regexp, 'ABRACADABRA1\\1ABRACADABRA2', content)
 
-            output = output + self.renderTemplate('_grep_line2.html', {'filepath':filepath,'line':line,'content':content}, True)
+            output = output + self.render_template('grep_lines.html', {'filepath':filepath,'line':line,'content':content}, True)
             output = output.replace('ABRACADABRA1', '<span class="grep_keyword">' ).replace( 'ABRACADABRA2', '</span>')
 
         return output
@@ -234,7 +237,7 @@ if __name__ == "__main__":
         html_dict['external_storage_grep'] = obj.grep_keyword('external_storage')
         #print(html_dict)
 
-        report = obj.renderTemplate('report_template.html', html_dict)
+        report = obj.render_template('report_template.html', html_dict)
         obj.grenerate_html_report(report)
     
     except Exception as e:
