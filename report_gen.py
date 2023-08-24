@@ -3,6 +3,8 @@ import subprocess
 import re
 import xml.etree.ElementTree as ET
 import datetime
+import logging
+logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 
 """
     Title:      APKaleidoscope
@@ -11,6 +13,26 @@ import datetime
     Version:    1.0.0
     GitHub URL: https://github.com/d78ui98/APKaleidoscope/
 """
+
+class util:
+    '''
+    A static class for which contain some useful variables and methods
+    '''
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    def mod_print(text_output, color):
+        print(color + "{}".format(text_output) + util.ENDC)
+
+    def mod_log(text, color):
+        logging.info(color + "{}".format(text) + util.ENDC)
 
 class ReportGen(object):
 
@@ -41,7 +63,7 @@ class ReportGen(object):
             for k, v in datas.items():
                 if isinstance(v, list):
                     v = self.list_to_html(v)
-                render = re.sub('{{\s*' + k + '\s*}}', v, render)
+                render = re.sub('{{\s*' + re.escape(k) + '\s*}}', v.replace('\\', '\\\\'), render)
             return render
 
         except Exception as e:
