@@ -283,8 +283,25 @@ if __name__ == "__main__":
 
         apk = args.apk
 
+        def is_path_or_filename(apk):
+        '''
+        
+        '''
+            global apk_name, apk_path
+
+            if os.sep in apk:
+                apk_name = os.path.basename(apk)  # Extracts the filename from the path
+                apk_path = apk
+                return "file path"
+            else:
+                apk_name = apk
+                apk_path = apk
+                return "It's just the filename"
+
+        is_path_or_filename(apk)
+
         obj_self = AutoApkScanner()
-        apk_file_abs_path = obj_self.return_abs_path(apk)
+        apk_file_abs_path = obj_self.return_abs_path(apk_path)
         if not obj_self.apk_exists(apk_file_abs_path):
             util.mod_log(f"[-] ERROR: {apk_file_abs_path} not found.", util.FAIL)
             exit(0)
@@ -293,7 +310,7 @@ if __name__ == "__main__":
         time.sleep(1)
         
         # Extracting source code
-        target_dir = obj_self.create_dir_to_extract(apk, extracted_path=args.source_code_path if args.source_code_path else None)
+        target_dir = obj_self.create_dir_to_extract(apk_name, extracted_path=args.source_code_path if args.source_code_path else None)
         if target_dir["result"] == 1:
             obj_self.extract_source_code(apk_file_abs_path, target_dir["path"])
 
@@ -301,7 +318,7 @@ if __name__ == "__main__":
         extracted_apk_path = obj_self.return_abs_path(target_dir["path"])
 
         # Extraction useful infomration from android menifest file
-        obj_self.extract_manifest_info(apk)
+        obj_self.extract_manifest_info(apk_name)
     
         # Extracting hardcoded secrets
         obj = sensitive_info_extractor.SensitiveInfoExtractor()
@@ -322,7 +339,7 @@ if __name__ == "__main__":
         if args.report:
             
             # Extracting all the required paths
-            extracted_source_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_source", apk)
+            extracted_source_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_source", apk_name)
             res_path = os.path.join(extracted_source_path, "resources")
             source_path = os.path.join(extracted_source_path, "sources")
             script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -362,7 +379,7 @@ if __name__ == "__main__":
 
                 # Generating the html report
                 report_content = obj.render_template('report_template.html', html_dict)
-                cleaned_apk_name = obj_self.clean_apk_name(apk)
+                cleaned_apk_name = obj_self.clean_apk_name(apk_name)
                 html_report_path = "reports/report_{}.html".format(cleaned_apk_name)
                 obj.grenerate_html_report(report_content, html_report_path)
                 util.mod_print("[+] Generated HTML report - {}".format(html_report_path), util.OKCYAN)
