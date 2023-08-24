@@ -284,9 +284,9 @@ if __name__ == "__main__":
         apk = args.apk
 
         def is_path_or_filename(apk):
-        '''
-        
-        '''
+            """
+            Added function to better handle apk names and apk paths
+            """
             global apk_name, apk_path
 
             if os.sep in apk:
@@ -297,8 +297,6 @@ if __name__ == "__main__":
                 apk_name = apk
                 apk_path = apk
                 return "It's just the filename"
-
-        is_path_or_filename(apk)
 
         obj_self = AutoApkScanner()
         apk_file_abs_path = obj_self.return_abs_path(apk_path)
