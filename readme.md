@@ -37,19 +37,23 @@ pip3 install -r requirements.txt
 
 ## Usage
 
-The script can be run with one optional argument that specifies the APK file or link to be analyzed.
+To simply scan an APK, use the below command. Mention the apk file with `-apk` argument. 
+Once the scan is complete, a detailed report will be displayed in the console.
 
 ```
 python3 APKaleidoscope.py -apk file.apk
 ```
-This will start the scanning process. Once completed, a detailed report will be generated and printed to the console.
 
-If you have source code already extracted you can pass `-source` path. 
-
+If you've already extracted the source code and want to provide its path for a faster scan you can use the below command.
+Mention the source code of the android application with `-source` parameter.
+ 
 ```
 python3 APKaleidoscope.py -apk file.apk -source <source-code-path>
 ```
-This will reduce the scan time. Helping you to get the output results faster.
+To generate detailed PDF and HTML reports after the scan you can pass `-report` argument as mentioned below.
+```
+python3 APKaleidoscope.py -apk file.apk -report
+```
 ## Contributing
 
 We welcome contributions to the APKaleidoscope project. If you have a feature request, bug report, or proposal, please open a new issue [here](https://github.com/d78ui98/APKaleidoscope/issues).
