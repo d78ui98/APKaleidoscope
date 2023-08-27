@@ -78,7 +78,7 @@ def parse_args():
                     help="Enter a valid path of extracted source for apk.")
     parser.add_argument("-l", "--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
                         default="INFO", help="Set the logging level. Default is INFO.")
-    parser.add_argument("--report", action="store_true", help="Generates a report if this argument is provided.")
+    parser.add_argument("-report", action="store_true", help="Generates a report if this argument is provided.")
 
 
     return parser.parse_args()
@@ -297,7 +297,11 @@ if __name__ == "__main__":
                 apk_name = apk
                 apk_path = apk
                 return "It's just the filename"
-
+        
+        # Calling function to handle apk names and path.
+        is_path_or_filename(apk)
+        
+        # Creating object for APKaleidoscope class
         obj_self = AutoApkScanner()
         apk_file_abs_path = obj_self.return_abs_path(apk_path)
         if not obj_self.apk_exists(apk_file_abs_path):
