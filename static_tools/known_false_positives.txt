@@ -39,4 +39,4 @@ https?://www\.youtube\.com.*
 https?://googleads\.g\.doubleclick\.net.*
 https?://.*\.appnext\.com.*
 https?://amazon\.com/.*
-(?:https?://)?(?:[^/]*\.)?(google|example|aptoide|sentry|aptoi|amazon|slf4j|facebook|xmlpull)\.[^/]+(/.*)?$
+(?:https?://)?(?:[^/]*\.)?(google|example|aptoide|sentry|aptoi|amazon|slf4j|facebook|xmlpull|schema.org)\.[^/]+(/.*)?$
