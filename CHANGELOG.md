@@ -4,7 +4,7 @@ All the notable changes to this project will be documented in this file.
 
 ## [Released]
 
-## [1.0.0] - 2023-08-16
+## [1.0.1] - 2023-08-16
 - Optimized code to improve speed
 - Added better support for windows
 - Removed redundant files
