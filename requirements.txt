@@ -1,1 +1,1 @@
-xhtmltopdf
+xhtml2pdf==0.2.11
