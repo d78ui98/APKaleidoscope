@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 import re
-from weasyprint import HTML
+from xhtml2pdf import pisa
 import logging
 import argparse
 import time 
@@ -20,7 +20,7 @@ from configparser import ConfigParser
     GitHub URL: https://github.com/d78ui98/APKaleidoscope/
 """
 
-logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+logging.basicConfig(level=logging.ERROR, format="%(message)s")
 
 class util:
     '''
@@ -257,7 +257,17 @@ class AutoApkScanner(object):
         """
         Convert an HTML file to a PDF.
         """
-        HTML(html_file).write_pdf(pdf_name)
+        # read content from html report
+        read_obj = open(html_file, 'r')
+        source_html = read_obj.read()
+        read_obj.close()
+
+        # write content from html report to pdf
+        result_file = open(pdf_name, "w+b")
+        pisa.CreatePDF(
+                source_html,                
+                dest=result_file)           
+        result_file.close()                 
     
     def clean_apk_name(self, apk_name):
         """
