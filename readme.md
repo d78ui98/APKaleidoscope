@@ -35,6 +35,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 python APKaleidoscope.py --help
 ```
+### For Windows
+```
+python3 -m venv venv
+.\venv\Scripts\activate
+pip install -r ./requirements.txt
+```
 
 ## Usage
 
