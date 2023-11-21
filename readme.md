@@ -6,7 +6,7 @@
 </div>
 <p>
 
-APKaleidoscope is a Python based tool designed to scan Android applications (APK files) for security vulnerabilities. It specifically targets the OWASP Top 10 vulnerabilities, providing an easy and efficient way for developers, penetration testers, and security researchers to assess the security posture of Android apps.
+APKaleidoscope is a Python based tool designed to scan Android applications (APK files) for security vulnerabilities. It specifically targets the OWASP Top 10 mobile vulnerabilities, providing an easy and efficient way for developers, penetration testers, and security researchers to assess the security posture of Android apps.
 
 ![image](https://github.com/d78ui98/APKaleidoscope/assets/27950739/9d4087a1-5559-4a62-bf07-97e90c38f694)
 
